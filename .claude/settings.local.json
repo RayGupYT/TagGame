@@ -13,7 +13,24 @@
       "Bash(winget upgrade:*)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(taskkill //F //IM cloudflared.exe)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(where gh:*)",
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Read(//c/Program Files \\(x86\\)/GitHub CLI/**)",
+      "Bash(winget install:*)",
+      "Bash(npx --yes gh --version)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
+      "Bash(npx gh:*)",
+      "Bash(curl -sL \"https://github.com/cli/cli/releases/download/v2.90.0/gh_2.90.0_windows_amd64.zip\" -o /tmp/gh.zip)",
+      "Bash(cd /tmp)",
+      "Bash(unzip -o gh.zip -d gh_extracted)",
+      "Bash(ls gh_extracted/*/bin/gh.exe)",
+      "Bash(/tmp/gh_extracted/bin/gh.exe --version)",
+      "Bash(/tmp/gh_extracted/bin/gh.exe auth:*)",
+      "Bash(/tmp/gh_extracted/bin/gh.exe repo:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const f=JSON.parse\\(d\\).tool_input.file_path||JSON.parse\\(d\\).tool_response?.filePath||'';console.log\\(f\\)}\\)\")"
     ]
   }
 }
