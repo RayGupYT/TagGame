@@ -247,8 +247,8 @@ wss.on('connection', (ws) => {
   });
 });
 
-const PORT = process.env.PORT || 0;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
   const port = server.address().port;
   console.log(`Server running at http://localhost:${port}`);
   console.log('Waiting for players...');
