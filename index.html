@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tag Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #000; font-family: 'Segoe UI', Arial, sans-serif; }
+    canvas { display: block; }
+
+    #login-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; flex-direction: column;
+    }
+    #login-screen h1 { color: #e94560; font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px rgba(233,69,96,0.5); }
+    #login-screen input {
+      padding: 14px 24px; font-size: 20px; border: 2px solid #e94560;
+      border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
+      outline: none; width: 300px; text-align: center;
+    }
+    #login-screen input::placeholder { color: rgba(255,255,255,0.4); }
+    #login-screen button {
+      margin-top: 16px; padding: 14px 40px; font-size: 18px; font-weight: bold;
+      border: none; border-radius: 8px; background: #e94560; color: white;
+      cursor: pointer; transition: transform 0.1s;
+    }
+    #login-screen button:hover { transform: scale(1.05); }
+
+    #tagger-banner {
+      position: fixed; top: 0; left: 0; width: 100%;
+      padding: 12px; text-align: center; font-size: 22px; font-weight: bold;
+      z-index: 50; pointer-events: none; display: none;
+    }
+    #tagger-banner.is-tagger {
+      background: rgba(255, 30, 30, 0.85); color: white;
+    }
+    #tagger-banner.not-tagger {
+      background: rgba(0, 0, 0, 0.6); color: white;
+    }
+
+    #chat-log {
+      position: fixed; bottom: 10px; left: 10px; width: 350px; max-height: 150px;
+      overflow-y: auto; z-index: 50; pointer-events: none;
+    }
+    .chat-msg {
+      color: white; background: rgba(0,0,0,0.5); padding: 4px 8px;
+      margin-top: 3px; border-radius: 4px; font-size: 14px;
+    }
+
+    #round-timer {
+      position: fixed; top: 50px; left: 50%; transform: translateX(-50%);
+      color: white; background: rgba(0,0,0,0.6); padding: 8px 20px;
+      border-radius: 8px; font-size: 20px; font-weight: bold;
+      z-index: 50; pointer-events: none; display: none; text-align: center;
+    }
+
+    #phase-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      display: none; align-items: center; justify-content: center;
+      z-index: 60; pointer-events: none; flex-direction: column;
+    }
+    #phase-overlay .phase-text {
+      color: white; font-size: 42px; font-weight: bold;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8); text-align: center;
+    }
+    #phase-overlay .phase-sub {
+      color: rgba(255,255,255,0.7); font-size: 20px; margin-top: 10px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    #player-count {
+      position: fixed; top: 50px; right: 15px; color: white;
+      background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px;
+      font-size: 14px; z-index: 50; pointer-events: none; display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="login-screen">
+    <h1>TAG GAME</h1>
+    <input type="text" id="username-input" placeholder="Enter your username" maxlength="20" autofocus>
+    <button id="play-btn">PLAY</button>
+  </div>
+
+  <div id="tagger-banner"></div>
+  <div id="round-timer"></div>
+  <div id="phase-overlay"><div class="phase-text"></div><div class="phase-sub"></div></div>
+  <div id="chat-log"></div>
+  <div id="player-count"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
