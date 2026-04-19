@@ -560,6 +560,93 @@ function interpolateOtherPlayers() {
 }
 
 // ==============================================
+// EMOTES
+// ==============================================
+const activeEmotes = []; // { sprite, startTime, owner }
+const EMOTE_DURATION = 2500; // ms
+const EMOTE_COOLDOWN = 3000;
+let lastEmoteTime = 0;
+
+function createEmoteSprite(text) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.roundRect(16, 8, 224, 112, 20);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 72px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 128, 64);
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(2, 1, 1);
+  return sprite;
+}
+
+function showEmote(playerId, emote) {
+  const text = emote === '67' ? '67' : 'L';
+
+  if (playerId === myId) {
+    // Show above own position (floating in world)
+    const sprite = createEmoteSprite(text);
+    sprite.position.set(playerPos.x, playerPos.y + 3, playerPos.z);
+    scene.add(sprite);
+    activeEmotes.push({ sprite, startTime: Date.now(), owner: 'self' });
+  } else {
+    const entry = otherPlayers.get(playerId);
+    if (entry) {
+      const sprite = createEmoteSprite(text);
+      sprite.position.y = 4;
+      entry.group.add(sprite);
+      activeEmotes.push({ sprite, startTime: Date.now(), owner: entry.group });
+    }
+  }
+}
+
+function updateEmotes() {
+  const now = Date.now();
+  for (let i = activeEmotes.length - 1; i >= 0; i--) {
+    const e = activeEmotes[i];
+    const elapsed = now - e.startTime;
+
+    if (elapsed > EMOTE_DURATION) {
+      if (e.owner === 'self') {
+        scene.remove(e.sprite);
+      } else {
+        e.owner.remove(e.sprite);
+      }
+      e.sprite.material.dispose();
+      activeEmotes.splice(i, 1);
+      continue;
+    }
+
+    // Float up slowly + fade out near end
+    if (e.owner === 'self') {
+      e.sprite.position.set(playerPos.x, playerPos.y + 3 + elapsed * 0.0005, playerPos.z);
+    } else {
+      e.sprite.position.y = 4 + elapsed * 0.0005;
+    }
+    if (elapsed > EMOTE_DURATION * 0.7) {
+      e.sprite.material.opacity = 1 - (elapsed - EMOTE_DURATION * 0.7) / (EMOTE_DURATION * 0.3);
+    }
+  }
+}
+
+function sendEmote(emote) {
+  const now = Date.now();
+  if (now - lastEmoteTime < EMOTE_COOLDOWN) return;
+  lastEmoteTime = now;
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify({ type: 'emote', emote }));
+  }
+}
+
+// ==============================================
 // UI ELEMENTS
 // ==============================================
 const banner = document.getElementById('tagger-banner');
@@ -694,6 +781,10 @@ function connectWS(username) {
     if (msg.type === 'chat') {
       addChat(msg.text);
     }
+
+    if (msg.type === 'emote') {
+      showEmote(msg.id, msg.emote);
+    }
   };
 
   ws.onclose = () => {
@@ -744,6 +835,8 @@ const keys = {};
 window.addEventListener('keydown', e => {
   if (!gameStarted) return;
   if (e.code === 'KeyC' && !keys['KeyC']) crouching = !crouching;
+  if (e.code === 'Digit1') sendEmote('67');
+  if (e.code === 'Digit2') sendEmote('L');
   keys[e.code] = true;
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
@@ -797,6 +890,7 @@ function animate() {
 
   // Interpolate other players every frame for smooth motion
   interpolateOtherPlayers();
+  updateEmotes();
 
   // Send position to server ~15 times/sec
   sendTimer += dt;

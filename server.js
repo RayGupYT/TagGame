@@ -228,6 +228,10 @@ wss.on('connection', (ws) => {
       }
       // Position broadcast handled by game tick, not here
     }
+
+    if (msg.type === 'emote') {
+      broadcast({ type: 'emote', id, emote: msg.emote });
+    }
   });
 
   ws.on('close', () => {
