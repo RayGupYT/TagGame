@@ -225,7 +225,7 @@ const TELEPORTER_PADS = [
   { x: 20, z: 20 },    // SE corner
 ];
 const TELEPORTER_DIST = 2.0;
-const TELEPORTER_COOLDOWN = 9000;
+const TELEPORTER_COOLDOWN = 30000;
 const teleporterCooldowns = new Map(); // playerId -> timestamp
 
 function checkTeleporter(player, id, ws) {
