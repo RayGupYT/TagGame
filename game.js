@@ -170,169 +170,216 @@ function addTunnel(px, py, pz, length, width, height, axis, wallColor, roofColor
 }
 
 // ==============================================
-// BOUNDARY WALLS
+// BOUNDARY WALLS (stone perimeter)
 // ==============================================
-addBlock(0, 0, -25, 50, 15, 0.5, 0x888888);
-addBlock(0, 0,  25, 50, 15, 0.5, 0x888888);
-addBlock(-25, 0, 0, 0.5, 15, 50, 0x888888);
-addBlock( 25, 0, 0, 0.5, 15, 50, 0x888888);
+addBlock(0, 0, -25, 50, 15, 0.5, 0x6B6B6B);
+addBlock(0, 0,  25, 50, 15, 0.5, 0x6B6B6B);
+addBlock(-25, 0, 0, 0.5, 15, 50, 0x6B6B6B);
+addBlock( 25, 0, 0, 0.5, 15, 50, 0x6B6B6B);
 
 // ==============================================
-// TUNNEL 1 — runs along X, north area
-// center (0,0,-14), x[-5,5], walls at z~-15.7 and z~-12.3
+// CENTER PLAZA — open area with a raised stone platform
 // ==============================================
-addTunnel(0, 0, -14, 10, 3, 3, 'x', 0x777777, 0x666666);
+addBlock(0, 0, 0, 6, 1.5, 6, 0x8B8B83);          // center platform
+addRamp(0, 0, 4.5, 6, 1.5, 3, '-z', 0x9C9C8E);  // south ramp
+addRamp(0, 0, -4.5, 6, 1.5, 3, '+z', 0x9C9C8E); // north ramp
+addRamp(-4.5, 0, 0, 3, 1.5, 6, '+x', 0x9C9C8E); // west ramp
+addRamp(4.5, 0, 0, 3, 1.5, 6, '-x', 0x9C9C8E);  // east ramp
 
 // ==============================================
-// TUNNEL 2 — runs along Z, east side
-// center (20,0,0), z[-6,6], walls at x~18.3 and x~21.7
+// NORTH AREA — tiered wooden platforms
 // ==============================================
-addTunnel(20, 0, 0, 12, 3, 3, 'z', 0x777777, 0x666666);
+addBlock(0, 0, -10, 8, 2, 5, 0x8B6914);           // big platform
+addRamp(0, 0, -6.5, 6, 2, 2, '+z', 0xA08060);    // ramp down south
+addBlock(-6, 0, -12, 3, 3, 3, 0x7A5B3A);          // tall block
+addRamp(-6, 0, -9.5, 3, 3, 2, '+z', 0xA08060);   // ramp down
+addBlock(7, 0, -11, 4, 1.5, 4, 0x8B6914);         // side platform
+addRamp(7, 0, -14, 4, 1.5, 2, '+z', 0xA08060);
 
 // ==============================================
-// TUNNEL 3 — runs along X, south area
-// center (0,0,16), x[-5,5], walls at z~14.3 and z~17.7
+// NORTHEAST — parkour blocks + lookout tower
 // ==============================================
-addTunnel(0, 0, 16, 10, 3, 3, 'x', 0x777777, 0x666666);
+addBlock(16, 0, -16, 3, 1, 3, 0xA0522D);
+addBlock(19, 0, -18, 2, 2, 2, 0x8B6914);
+addBlock(22, 0, -16, 3, 3, 3, 0xA0522D);          // tall lookout
+addRamp(22, 0, -13, 3, 3, 3, '+z', 0x9C9C8E);    // ramp up to lookout
+addBlock(16, 0, -21, 3, 1.5, 3, 0x7A5B3A);
+addBlock(12, 0, -19, 2.5, 2.5, 2.5, 0x8B6914);
 
 // ==============================================
-// TUNNEL 4 — runs along Z, west side
-// center (-20,0,-6), z[-11,-1], walls at x~-21.7 and x~-18.3
+// EAST CORRIDOR — long covered passage
 // ==============================================
-addTunnel(-20, 0, -6, 10, 3, 3, 'z', 0x777777, 0x666666);
+addTunnel(18, 0, -4, 8, 3, 3, 'z', 0x7A6B5D, 0x6B5B4F);
+addBlock(14, 0, -3, 2, 2, 2, 0xA0522D);           // crate at entrance
+addBlock(14, 0, 3, 2, 1.5, 2, 0x8B6914);
 
 // ==============================================
-// BRIDGE 1 — northeast, spans along X
-// Deck at y=3, x[4,16] z[-8.25,-5.75]
-// Ramps flush on both ends
+// SOUTHEAST — stacked platforms + ramps
 // ==============================================
-addBlock(7,  0, -7, 1.2, 3, 1.2, 0x5C5C5C);    // pillar
-addBlock(13, 0, -7, 1.2, 3, 1.2, 0x5C5C5C);    // pillar
-addBlock(10, 3, -7, 12, 0.3, 2.5, 0x6B4423);   // deck x[4,16]
-// West ramp: x[1,4] high at x=4 → '+x', top=3
-addRamp(2.5, 0, -7, 3, 3, 2.5, '+x', 0xA08060);
-// East ramp: x[16,19] high at x=16 → '-x', top=3
-addRamp(17.5, 0, -7, 3, 3, 2.5, '-x', 0xA08060);
+addBlock(16, 0, 10, 6, 1.5, 5, 0x8B8B83);         // base
+addRamp(16, 0, 14, 5, 1.5, 3, '-z', 0x9C9C8E);   // ramp south
+addBlock(20, 1.5, 10, 3, 1.5, 3, 0x7A5B3A);       // upper tier
+addRamp(20, 0, 7, 3, 1.5, 3, '+z', 0x9C9C8E);    // ground ramp east
+addBlock(14, 0, 18, 3, 2, 3, 0xA0522D);
+addBlock(18, 0, 20, 2.5, 1, 2.5, 0x8B6914);
+addBlock(22, 0, 18, 3, 2.5, 3, 0x7A5B3A);
+addRamp(22, 0, 15, 3, 2.5, 3, '+z', 0x9C9C8E);
 
 // ==============================================
-// BRIDGE 2 — west side, spans along Z
-// Deck at y=2.5, z[1,11] x[-9.25,-6.75]
-// Ramps flush on both ends
+// SOUTH — wide bridge over tunnel
 // ==============================================
-addBlock(-8, 0, 3,  1.2, 2.5, 1.2, 0x5C5C5C);  // pillar
-addBlock(-8, 0, 9,  1.2, 2.5, 1.2, 0x5C5C5C);  // pillar
-addBlock(-8, 2.5, 6, 2.5, 0.3, 10, 0x6B4423);  // deck z[1,11]
-// North ramp: z[-2,1] high at z=1 → '+z', top=2.5
-addRamp(-8, 0, -0.5, 2.5, 2.5, 3, '+z', 0xA08060);
-// South ramp: z[11,14] high at z=11 → '-z', top=2.5
-addRamp(-8, 0, 12.5, 2.5, 2.5, 3, '-z', 0xA08060);
+addTunnel(0, 0, 14, 12, 3.5, 3, 'x', 0x6B5B4F, 0x5C5C5C);
+addBlock(-8, 0, 18, 4, 2, 4, 0x8B8B83);
+addRamp(-8, 0, 15, 4, 2, 2, '+z', 0x9C9C8E);
+addBlock(8, 0, 19, 3, 1.5, 3, 0x8B6914);
+addBlock(4, 0, 21, 2, 2.5, 2, 0xA0522D);
 
 // ==============================================
-// ROOM — northwest, enclosed with doorway on south
-// Interior ~6x6, center (-16,-18)
-// Walls: x[-19.2,-12.8] z[-21.2,-14.8]
+// SOUTHWEST — hideout compound
 // ==============================================
-// North wall
-addBlock(-16, 0, -21.2, 6.8, 3.5, 0.4, 0x666666);
-// South wall — split for doorway (2-unit gap in middle)
-addBlock(-18.2, 0, -14.8, 2.4, 3.5, 0.4, 0x666666); // left x[-19.4,-17]
-addBlock(-13.8, 0, -14.8, 2.4, 3.5, 0.4, 0x666666); // right x[-15,-12.6]
-// West wall
-addBlock(-19.2, 0, -18, 0.4, 3.5, 6, 0x666666);     // z[-21,-15]
-// East wall
-addBlock(-12.8, 0, -18, 0.4, 3.5, 6, 0x666666);
-// Roof
-addBlock(-16, 3.5, -18, 7.2, 0.3, 7.2, 0x555555);
-// Cover inside
-addBlock(-18, 0, -19.5, 1.5, 1.5, 1.5, 0xB8860B);
-addBlock(-14, 0, -16.5, 1, 2, 1, 0xB8860B);
+addBlock(-16, 0, 16, 6, 2, 6, 0x7A5B3A);          // raised floor
+addRamp(-12, 0, 16, 3, 2, 5, '-x', 0xA08060);    // east ramp up
+addBlock(-16, 2, 19.3, 6, 2, 0.4, 0x5C5C5C);     // south wall
+addBlock(-19.3, 2, 16, 0.4, 2, 6, 0x5C5C5C);     // west wall
+addBlock(-16, 2, 12.7, 6, 2, 0.4, 0x5C5C5C);     // north wall
+addBlock(-17, 2, 16, 1.5, 1, 1.5, 0xA0522D);     // cover inside
+addBlock(-22, 0, 12, 2, 1.5, 2, 0x8B6914);
+addBlock(-22, 0, 22, 3, 2, 3, 0x7A5B3A);
 
 // ==============================================
-// OBSTACLE COURSE 1 — northeast, ascending jumps
-// x[8,22] z[-22,-19], blocks at increasing heights
+// WEST — scattered cover + elevated walkway
 // ==============================================
-addBlock(9,  0, -20.5, 2, 0.8, 2, 0xA0522D);   // top=0.8
-addBlock(12, 0, -20.5, 2, 1.6, 2, 0xB8860B);   // top=1.6
-addBlock(15, 0, -20.5, 2, 2.4, 2, 0x8B6914);   // top=2.4
-addBlock(18, 0, -20.5, 2, 3.2, 2, 0xA0522D);   // top=3.2
-addBlock(21, 0, -20.5, 2.5, 4, 2.5, 0xB8860B); // top=4
+addBlock(-15, 0, 0, 4, 2.5, 3, 0x8B8B83);         // stone platform
+addRamp(-15, 0, -3, 4, 2.5, 3, '+z', 0x9C9C8E);  // ramp north
+addRamp(-15, 0, 3, 4, 2.5, 3, '-z', 0x9C9C8E);   // ramp south
+addBlock(-22, 0, -3, 3, 1.5, 3, 0x8B6914);
+addBlock(-22, 0, 3, 2, 2, 2, 0xA0522D);
+addBlock(-18, 0, 6, 2, 1, 2, 0x7A5B3A);
 
 // ==============================================
-// OBSTACLE COURSE 2 — southeast, zigzag stepping
-// x[12,23] z[19,24], alternating z offset
+// NORTHWEST — enclosed room + approach
 // ==============================================
-addBlock(13, 0, 20, 2, 0.8, 2, 0x8B6914);       // top=0.8
-addBlock(16, 0, 22.5, 2, 1.2, 2, 0xA0522D);     // top=1.2
-addBlock(19, 0, 20, 2, 1.8, 2, 0xB8860B);       // top=1.8
-addBlock(22, 0, 22.5, 2, 2.4, 2, 0x8B6914);     // top=2.4
+addBlock(-16, 0, -18, 6, 3, 0.4, 0x5C5C5C);       // north wall
+addBlock(-16, 0, -13, 6, 3, 0.4, 0x5C5C5C);       // south wall split
+addBlock(-19.3, 0, -15.5, 0.4, 3, 5, 0x5C5C5C);   // west wall
+addBlock(-12.7, 0, -15.5, 0.4, 3, 5, 0x5C5C5C);   // east wall
+addBlock(-16, 3, -15.5, 7, 0.3, 5.4, 0x4A4A4A);   // roof
+addBlock(-17, 0, -16.5, 1.5, 1.5, 1.5, 0xA0522D); // crate inside
+addBlock(-22, 0, -14, 2, 2.5, 2, 0x7A5B3A);       // approach block
+addBlock(-10, 0, -16, 2, 1.5, 2, 0x8B6914);
 
 // ==============================================
-// OBSTACLE COURSE 3 — west, stepping stones + ramp
-// x[-24,-14] z[16,23], varied heights with connecting ramp
+// WEST TUNNEL connecting NW to SW
 // ==============================================
-addBlock(-23, 0, 17, 2, 0.6, 2, 0xB8860B);      // top=0.6
-addBlock(-20, 0, 19, 2, 1.3, 2, 0x8B6914);      // top=1.3
-addBlock(-17, 0, 17, 2, 2, 2, 0xA0522D);        // top=2
-// Ramp connecting last block down to ground east: x[-16,-14] high at x=-16 → '-x'
-addRamp(-15, 0, 17, 2, 2, 2, '-x', 0xA08060);
-addBlock(-20, 0, 22, 2.5, 1.5, 2.5, 0xB8860B); // separate tall step
-addBlock(-23, 0, 22, 2, 2.5, 2, 0x8B6914);      // highest
+addTunnel(-22, 0, 6, 8, 2.5, 3, 'z', 0x6B5B4F, 0x5C5C5C);
 
 // ==============================================
-// PLATFORM 1 — center-east
-// x[5.5,8.5] z[5.5,8.5] top=2
-// Ramp from south: z[8.5,11.5] high at z=8.5
+// NORTH TUNNEL connecting center to north
 // ==============================================
-addBlock(7, 0, 7, 3, 2, 3, 0x6B5B4F);
-addRamp(7, 0, 10, 3, 2, 3, '-z', 0xA08060);
+addTunnel(8, 0, -6, 6, 3, 3, 'z', 0x6B5B4F, 0x5C5C5C);
 
 // ==============================================
-// PLATFORM 2 — west-center
-// x[-13.5,-10.5] z[-4.5,-1.5] top=1.5
-// Ramp from east: x[-10.5,-7.5] high at x=-10.5
+// SCATTERED OUTDOOR COVER — wooden crates & stone blocks
 // ==============================================
-addBlock(-12, 0, -3, 3, 1.5, 3, 0x5C5C5C);
-addRamp(-9, 0, -3, 3, 1.5, 3, '-x', 0xA08060);
+addBlock(-5, 0, 7, 2, 1.5, 2, 0xA0522D);
+addBlock(5, 0, -5, 1.5, 2, 1.5, 0x8B6914);
+addBlock(-3, 0, -7, 2, 1, 2, 0x7A5B3A);
+addBlock(10, 0, 3, 1.5, 2.5, 1.5, 0xA0522D);
+addBlock(-10, 0, 8, 2, 1.5, 2, 0x8B6914);
+addBlock(6, 0, 18, 2, 2, 2, 0x7A5B3A);
+addBlock(-6, 0, 22, 2, 1.5, 2, 0xA0522D);
+addBlock(10, 0, -14, 2, 1, 2, 0x8B6914);
+addBlock(-10, 0, -22, 2, 2, 2, 0x7A5B3A);
+addBlock(3, 0, -18, 1.5, 1.5, 1.5, 0xA0522D);
+addBlock(12, 0, 22, 2, 1.5, 2, 0x8B6914);
+addBlock(-3, 0, 10, 1.5, 2, 1, 0x7A5B3A);
 
 // ==============================================
-// PLATFORM 3 — far northeast
-// x[20,24] z[-12,-8] top=3
-// Ramp from south: z[-8,-5] high at z=-8
+// TELEPORTER PADS — glowing pads at corners
 // ==============================================
-addBlock(22, 0, -10, 4, 3, 4, 0x6B5B4F);
-addRamp(22, 0, -6.5, 4, 3, 3, '-z', 0xA08060);
+const teleporterPads = [];
+const TELE_POSITIONS = [
+  { x: -20, z: -20 }, { x: 20, z: -20 },
+  { x: -20, z: 20 },  { x: 20, z: 20 },
+];
+TELE_POSITIONS.forEach(pos => {
+  const padGroup = new THREE.Group();
 
-// ==============================================
-// PLATFORM 4 — south-center
-// x[-7,-4] z[20,23] top=2
-// Ramp from north: z[17,20] high at z=20 → '+z'
-// ==============================================
-addBlock(-5.5, 0, 21.5, 3, 2, 3, 0x5C5C5C);
-addRamp(-5.5, 0, 18.5, 3, 2, 3, '+z', 0xA08060);
+  // Base platform
+  const base = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.5, 1.5, 0.2, 24),
+    new THREE.MeshStandardMaterial({ color: 0x222244 })
+  );
+  base.position.y = 0.1;
+  base.receiveShadow = true;
+  padGroup.add(base);
 
-// ==============================================
-// PLATFORM 5 — north-center
-// x[-2,2] z[-22,-19] top=2
-// Ramp from south: z[-19,-16] high at z=-19 → '-z'
-// ==============================================
-addBlock(0, 0, -20.5, 4, 2, 3, 0x6B5B4F);
-addRamp(0, 0, -17.5, 4, 2, 3, '-z', 0xA08060);
+  // Inner glowing ring
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1, 0.1, 8, 32),
+    new THREE.MeshBasicMaterial({ color: 0x8844ff })
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.25;
+  padGroup.add(ring);
 
-// ==============================================
-// PLATFORM 6 — southwest
-// x[-24,-21] z[8,11] top=2.5
-// Ramp from east: x[-21,-18] high at x=-21 → '-x'
-// ==============================================
-addBlock(-22.5, 0, 9.5, 3, 2.5, 3, 0x5C5C5C);
-addRamp(-19.5, 0, 9.5, 3, 2.5, 3, '-x', 0xA08060);
+  // Outer ring
+  const ring2 = new THREE.Mesh(
+    new THREE.TorusGeometry(1.4, 0.05, 8, 32),
+    new THREE.MeshBasicMaterial({ color: 0xaa66ff })
+  );
+  ring2.rotation.x = Math.PI / 2;
+  ring2.position.y = 0.25;
+  padGroup.add(ring2);
 
-// ==============================================
-// PLATFORM 7 — east-center
-// x[13,16] z[9,12] top=1.5
-// Ramp from west: x[10,13] high at x=13 → '+x'
-// ==============================================
-addBlock(14.5, 0, 10.5, 3, 1.5, 3, 0x6B5B4F);
-addRamp(11.5, 0, 10.5, 3, 1.5, 3, '+x', 0xA08060);
+  // Floating particles (vertical column)
+  for (let i = 0; i < 8; i++) {
+    const particle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 8, 8),
+      new THREE.MeshBasicMaterial({ color: 0xcc88ff })
+    );
+    particle.position.y = 0.5 + i * 0.4;
+    particle.userData.baseY = particle.position.y;
+    particle.userData.phase = Math.random() * Math.PI * 2;
+    padGroup.add(particle);
+  }
+
+  // Label
+  const canvas = document.createElement('canvas');
+  canvas.width = 128; canvas.height = 48;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#aa66ff';
+  ctx.font = 'bold 22px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('TELEPORT', 64, 32);
+  const tex = new THREE.CanvasTexture(canvas);
+  const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+  label.position.y = 4;
+  label.scale.set(2, 0.75, 1);
+  padGroup.add(label);
+
+  padGroup.position.set(pos.x, 0, pos.z);
+  scene.add(padGroup);
+  teleporterPads.push(padGroup);
+});
+
+function updateTeleporterPads() {
+  const t = Date.now() * 0.002;
+  teleporterPads.forEach((pad, i) => {
+    // Spin rings
+    pad.children[1].rotation.z = t + i;
+    pad.children[2].rotation.z = -t * 0.7 + i;
+    // Animate particles
+    for (let j = 3; j < 3 + 8; j++) {
+      const p = pad.children[j];
+      if (!p || !p.userData.baseY) continue;
+      p.position.y = p.userData.baseY + Math.sin(t * 2 + p.userData.phase) * 0.2;
+      const angle = t * 3 + p.userData.phase;
+      p.position.x = Math.cos(angle) * 0.4;
+      p.position.z = Math.sin(angle) * 0.4;
+    }
+  });
+}
 
 // ==============================================
 // PLAYER
@@ -899,6 +946,11 @@ function connectWS(username) {
       }
     }
 
+    if (msg.type === 'teleport') {
+      teleportPlayer(msg.x, msg.y, msg.z);
+      addChat('Teleported!');
+    }
+
     if (msg.type === 'powerupClearAll') {
       for (const pu of activePowerups.values()) scene.remove(pu.mesh);
       activePowerups.clear();
@@ -1015,6 +1067,7 @@ function animate() {
   interpolateOtherPlayers();
   updateEmotes();
   updatePowerups();
+  updateTeleporterPads();
 
   // Send position to server ~15 times/sec
   sendTimer += dt;

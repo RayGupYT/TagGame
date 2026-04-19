@@ -217,6 +217,41 @@ function stopPowerupSpawning() {
   broadcast({ type: 'powerupClearAll' });
 }
 
+// --- Teleporters ---
+const TELEPORTER_PADS = [
+  { x: -20, z: -20 },  // NW corner
+  { x: 20, z: -20 },   // NE corner
+  { x: -20, z: 20 },   // SW corner
+  { x: 20, z: 20 },    // SE corner
+];
+const TELEPORTER_DIST = 2.0;
+const TELEPORTER_COOLDOWN = 3000;
+const teleporterCooldowns = new Map(); // playerId -> timestamp
+
+function checkTeleporter(player, id, ws) {
+  const now = Date.now();
+  const lastUse = teleporterCooldowns.get(id) || 0;
+  if (now - lastUse < TELEPORTER_COOLDOWN) return;
+
+  for (let i = 0; i < TELEPORTER_PADS.length; i++) {
+    const pad = TELEPORTER_PADS[i];
+    const dx = player.x - pad.x;
+    const dz = player.z - pad.z;
+    if (Math.sqrt(dx * dx + dz * dz) < TELEPORTER_DIST) {
+      // Pick a random OTHER pad
+      const others = TELEPORTER_PADS.filter((_, j) => j !== i);
+      const dest = others[Math.floor(Math.random() * others.length)];
+      player.x = dest.x;
+      player.y = 0;
+      player.z = dest.z;
+      teleporterCooldowns.set(id, now);
+      ws.send(JSON.stringify({ type: 'teleport', x: dest.x, y: 0, z: dest.z }));
+      broadcast({ type: 'teleportEffect', fromX: pad.x, fromZ: pad.z, toX: dest.x, toZ: dest.z });
+      return;
+    }
+  }
+}
+
 // --- Game tick: broadcast positions at 20 ticks/sec ---
 setInterval(() => {
   if (players.size === 0) return;
@@ -307,6 +342,8 @@ wss.on('connection', (ws) => {
       }
       // Check powerup pickup
       if (gamePhase === 'playing') checkPowerupPickup(player);
+      // Check teleporter
+      checkTeleporter(player, id, ws);
       // Position broadcast handled by game tick, not here
     }
 
