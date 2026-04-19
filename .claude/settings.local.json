@@ -1,19 +1,4 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);const f=j.tool_input?.file_path||j.tool_response?.filePath||'';if(!f.includes('TagGame'))process.exit(0);const{execSync}=require('child_process');const dir='c:/Users/Raygu/OneDrive/Desktop/dev/antigravity/TagGame';try{execSync('git add -A && git diff --cached --quiet',{cwd:dir})}catch{execSync('git commit -m \\\"auto-update\\\" && git push',{cwd:dir})}});\"",
-            "timeout": 30,
-            "async": true
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "Bash(node server.js)",
@@ -45,7 +30,9 @@
       "Bash(/tmp/gh_extracted/bin/gh.exe repo:*)",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const f=JSON.parse\\(d\\).tool_input.file_path||JSON.parse\\(d\\).tool_response?.filePath||'';console.log\\(f\\)}\\)\")"
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const f=JSON.parse\\(d\\).tool_input.file_path||JSON.parse\\(d\\).tool_response?.filePath||'';console.log\\(f\\)}\\)\")",
+      "Bash(PORT=3000 node server.js)",
+      "Bash(curl -s http://localhost:3000/)"
     ]
   }
 }

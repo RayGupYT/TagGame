@@ -247,9 +247,13 @@ wss.on('connection', (ws) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+});
+
 server.listen(PORT, '0.0.0.0', () => {
-  const port = server.address().port;
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running on port ${PORT}`);
   console.log('Waiting for players...');
 });
