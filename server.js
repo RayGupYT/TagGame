@@ -34,6 +34,10 @@ const LOBBY_DURATION = 10 * 1000;        // 10 seconds
 let gamePhase = 'lobby'; // 'lobby' or 'playing'
 let phaseEndTime = Date.now() + LOBBY_DURATION;
 
+// Tagger time tracking
+const taggerTime = new Map(); // playerId -> ms spent as tagger
+let taggerSwitchedAt = 0; // timestamp when current tagger became it
+
 // Lobby spawn point (center area)
 const LOBBY_SPAWN = { x: 0, y: 0, z: 0 };
 
@@ -84,9 +88,14 @@ function startRound() {
 
   if (players.size === 0) return;
 
+  // Reset tagger time tracking
+  taggerTime.clear();
+  for (const p of players.values()) taggerTime.set(p.id, 0);
+
   // Pick random tagger
   const ids = [...players.keys()];
   taggerId = ids[Math.floor(Math.random() * ids.length)];
+  taggerSwitchedAt = Date.now();
   lastTagTime = Date.now();
 
   // Assign random spawn points
@@ -119,9 +128,21 @@ function endRound() {
   gamePhase = 'lobby';
   phaseEndTime = Date.now() + LOBBY_DURATION;
 
-  // Find who is tagger at end
-  const tagger = players.get(taggerId);
-  const taggerName = tagger ? tagger.username : 'nobody';
+  // Finalize tagger time for current tagger
+  if (taggerId && taggerTime.has(taggerId)) {
+    const elapsed = Date.now() - taggerSwitchedAt;
+    taggerTime.set(taggerId, (taggerTime.get(taggerId) || 0) + elapsed);
+  }
+
+  // Build leaderboard sorted by least tagger time (winner first)
+  const leaderboard = [];
+  for (const p of players.values()) {
+    const ms = taggerTime.get(p.id) || 0;
+    leaderboard.push({ id: p.id, username: p.username, taggerTimeMs: ms });
+  }
+  leaderboard.sort((a, b) => a.taggerTimeMs - b.taggerTimeMs);
+
+  const winner = leaderboard.length > 0 ? leaderboard[0].username : 'nobody';
 
   // Teleport everyone to lobby
   const teleports = [];
@@ -141,11 +162,12 @@ function endRound() {
 
   broadcast({
     type: 'roundEnd',
-    lastTaggerUsername: taggerName,
+    winner,
+    leaderboard,
     teleports
   });
   stopPowerupSpawning();
-  broadcast({ type: 'chat', text: `Round over! ${taggerName} was the last tagger.` });
+  broadcast({ type: 'chat', text: `Round over! ${winner} wins with least tagger time!` });
   broadcastState();
 }
 
@@ -266,8 +288,13 @@ wss.on('connection', (ws) => {
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
           if (dist < TAG_DIST) {
             const oldTagger = player.username;
+            const now = Date.now();
+            // Accumulate time for old tagger
+            const elapsed = now - taggerSwitchedAt;
+            taggerTime.set(id, (taggerTime.get(id) || 0) + elapsed);
             taggerId = other.id;
-            lastTagTime = Date.now();
+            taggerSwitchedAt = now;
+            lastTagTime = now;
             broadcast({
               type: 'tagged',
               taggerUsername: oldTagger,
@@ -293,8 +320,12 @@ wss.on('connection', (ws) => {
     players.delete(id);
 
     if (gamePhase === 'playing' && taggerId === id && players.size > 0) {
+      // Accumulate time for leaving tagger
+      const elapsed = Date.now() - taggerSwitchedAt;
+      taggerTime.set(id, (taggerTime.get(id) || 0) + elapsed);
       const remaining = [...players.keys()];
       taggerId = remaining[Math.floor(Math.random() * remaining.length)];
+      taggerSwitchedAt = Date.now();
       const newTagger = players.get(taggerId);
       broadcast({ type: 'chat', text: `${username} left. ${newTagger.username} is now the tagger!` });
     } else if (players.size === 0) {

@@ -751,6 +751,36 @@ function showPhaseOverlay(main, sub, duration) {
   }, duration);
 }
 
+const leaderboardEl = document.getElementById('leaderboard');
+let leaderboardTimeout = null;
+
+function formatTimeSec(ms) {
+  const sec = Math.floor(ms / 1000);
+  const min = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${min}:${s.toString().padStart(2, '0')}`;
+}
+
+function showLeaderboard(leaderboard, winner) {
+  let html = `<div class="lb-winner-label">${winner} WINS!</div>`;
+  html += '<h2>LEADERBOARD</h2>';
+  leaderboard.forEach((entry, i) => {
+    const isWinner = i === 0 ? ' winner' : '';
+    const medal = i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i+1}th`;
+    html += `<div class="lb-row${isWinner}">
+      <span class="lb-rank">${medal}</span>
+      <span class="lb-name">${entry.username}</span>
+      <span class="lb-time">${formatTimeSec(entry.taggerTimeMs)} as IT</span>
+    </div>`;
+  });
+  leaderboardEl.innerHTML = html;
+  leaderboardEl.style.display = 'block';
+  if (leaderboardTimeout) clearTimeout(leaderboardTimeout);
+  leaderboardTimeout = setTimeout(() => {
+    leaderboardEl.style.display = 'none';
+  }, 8000);
+}
+
 // Crosshair
 const crosshair = document.createElement('div');
 crosshair.style.cssText = 'position:fixed;top:50%;left:50%;width:6px;height:6px;background:white;border:1px solid black;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:10;display:none;';
@@ -830,7 +860,8 @@ function connectWS(username) {
       const mySpawn = msg.teleports.find(t => t.id === myId);
       if (mySpawn) teleportPlayer(mySpawn.x, mySpawn.y, mySpawn.z);
 
-      showPhaseOverlay('ROUND OVER!', `${msg.lastTaggerUsername} was the last tagger`, 4000);
+      showPhaseOverlay('ROUND OVER!', `${msg.winner} wins!`, 6000);
+      showLeaderboard(msg.leaderboard, msg.winner);
     }
 
     if (msg.type === 'tagged') {
