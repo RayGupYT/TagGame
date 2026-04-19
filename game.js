@@ -348,7 +348,7 @@ const CROUCH_EYE_HEIGHT = 1.0;
 const PLAYER_HEIGHT = 1.9;
 const CROUCH_HEIGHT = 1.2;
 const SPEED = 8;
-const TAGGER_SPEED = 8.4; // ~5% faster
+const TAGGER_SPEED = 8.8; // ~10% faster
 const CROUCH_SPEED_MULT = 0.5;
 const GRAVITY = 25;
 const JUMP_FORCE = 9;
@@ -487,6 +487,7 @@ function createPlayerModel(username, isTagger) {
   return group;
 }
 
+// Store target positions from server, interpolate every frame
 function updateOtherPlayers(playerList) {
   const seen = new Set();
   for (const p of playerList) {
@@ -495,39 +496,20 @@ function updateOtherPlayers(playerList) {
 
     let entry = otherPlayers.get(p.id);
     if (!entry || entry.wasTagger !== p.isTagger) {
-      // Create or recreate model (tagger status changed)
       if (entry) scene.remove(entry.group);
       const group = createPlayerModel(p.username, p.isTagger);
       scene.add(group);
-      entry = { group, wasTagger: p.isTagger, prevX: p.x, prevZ: p.z };
+      entry = { group, wasTagger: p.isTagger, tx: p.x, ty: p.y, tz: p.z, tyaw: p.yaw };
+      group.position.set(p.x, p.y, p.z);
+      group.rotation.y = p.yaw;
       otherPlayers.set(p.id, entry);
     }
 
-    // Smooth interpolation
-    const g = entry.group;
-    g.position.x += (p.x - g.position.x) * 0.3;
-    g.position.y += (p.y - g.position.y) * 0.3;
-    g.position.z += (p.z - g.position.z) * 0.3;
-    g.rotation.y = p.yaw;
-
-    // Walk animation
-    const dx = p.x - entry.prevX;
-    const dz = p.z - entry.prevZ;
-    const moving = Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01;
-    if (moving) {
-      const swing = Math.sin(Date.now() * 0.01) * 0.4;
-      g.children[6].rotation.x = swing;   // left leg
-      g.children[7].rotation.x = -swing;  // right leg
-      g.children[4].rotation.x = -swing;  // left arm
-      g.children[5].rotation.x = swing;   // right arm
-    } else {
-      g.children[6].rotation.x = 0;
-      g.children[7].rotation.x = 0;
-      g.children[4].rotation.x = 0;
-      g.children[5].rotation.x = 0;
-    }
-    entry.prevX = p.x;
-    entry.prevZ = p.z;
+    // Update targets (actual server position)
+    entry.tx = p.x;
+    entry.ty = p.y;
+    entry.tz = p.z;
+    entry.tyaw = p.yaw;
   }
 
   // Remove disconnected players
@@ -535,6 +517,44 @@ function updateOtherPlayers(playerList) {
     if (!seen.has(id)) {
       scene.remove(entry.group);
       otherPlayers.delete(id);
+    }
+  }
+}
+
+// Called every frame to smoothly interpolate other player positions
+function interpolateOtherPlayers() {
+  const lerpFactor = 0.15; // smooth per-frame lerp
+  for (const entry of otherPlayers.values()) {
+    const g = entry.group;
+    const prevX = g.position.x;
+    const prevZ = g.position.z;
+
+    g.position.x += (entry.tx - g.position.x) * lerpFactor;
+    g.position.y += (entry.ty - g.position.y) * lerpFactor;
+    g.position.z += (entry.tz - g.position.z) * lerpFactor;
+
+    // Smooth yaw interpolation (handle wraparound)
+    let dyaw = entry.tyaw - g.rotation.y;
+    while (dyaw > Math.PI) dyaw -= Math.PI * 2;
+    while (dyaw < -Math.PI) dyaw += Math.PI * 2;
+    g.rotation.y += dyaw * lerpFactor;
+
+    // Walk animation based on actual visual movement
+    const dx = g.position.x - prevX;
+    const dz = g.position.z - prevZ;
+    const moving = Math.abs(dx) > 0.001 || Math.abs(dz) > 0.001;
+    if (moving) {
+      const swing = Math.sin(Date.now() * 0.012) * 0.5;
+      g.children[6].rotation.x = swing;
+      g.children[7].rotation.x = -swing;
+      g.children[4].rotation.x = -swing;
+      g.children[5].rotation.x = swing;
+    } else {
+      // Smoothly return limbs to rest
+      g.children[6].rotation.x *= 0.85;
+      g.children[7].rotation.x *= 0.85;
+      g.children[4].rotation.x *= 0.85;
+      g.children[5].rotation.x *= 0.85;
     }
   }
 }
@@ -775,7 +795,10 @@ function animate() {
   camera.rotation.y = yaw;
   camera.rotation.x = pitch;
 
-  // Send position to server ~30 times/sec
+  // Interpolate other players every frame for smooth motion
+  interpolateOtherPlayers();
+
+  // Send position to server ~15 times/sec
   sendTimer += dt;
   if (sendTimer > 1/15 && ws && ws.readyState === 1) {
     sendTimer = 0;
