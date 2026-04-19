@@ -111,6 +111,7 @@ function startRound() {
     duration: ROUND_DURATION
   });
   broadcast({ type: 'chat', text: `Round started! ${tagger ? tagger.username : '???'} is IT!` });
+  startPowerupSpawning();
   broadcastState();
 }
 
@@ -143,8 +144,55 @@ function endRound() {
     lastTaggerUsername: taggerName,
     teleports
   });
+  stopPowerupSpawning();
   broadcast({ type: 'chat', text: `Round over! ${taggerName} was the last tagger.` });
   broadcastState();
+}
+
+// --- Powerups ---
+const powerups = []; // { id, type, x, z }
+let powerupNextId = 1;
+const POWERUP_INTERVAL = 11000; // spawn 3 every 11 seconds
+const POWERUP_PICKUP_DIST = 2.5;
+const POWERUP_TYPES = ['speed', 'jump'];
+
+function spawnPowerups() {
+  if (gamePhase !== 'playing') return;
+  for (let i = 0; i < 3; i++) {
+    const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+    const x = (Math.random() - 0.5) * 40;
+    const z = (Math.random() - 0.5) * 40;
+    const pu = { id: powerupNextId++, type, x, z };
+    powerups.push(pu);
+    broadcast({ type: 'powerupSpawn', powerup: pu });
+  }
+}
+
+function checkPowerupPickup(player) {
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const pu = powerups[i];
+    const dx = player.x - pu.x;
+    const dz = player.z - pu.z;
+    if (Math.sqrt(dx * dx + dz * dz) < POWERUP_PICKUP_DIST) {
+      powerups.splice(i, 1);
+      broadcast({ type: 'powerupPickup', powerupId: pu.id, playerId: player.id, powerupType: pu.type });
+      return;
+    }
+  }
+}
+
+let powerupSpawnTimer = null;
+function startPowerupSpawning() {
+  if (powerupSpawnTimer) clearInterval(powerupSpawnTimer);
+  powerups.length = 0;
+  spawnPowerups(); // spawn first batch immediately
+  powerupSpawnTimer = setInterval(spawnPowerups, POWERUP_INTERVAL);
+}
+function stopPowerupSpawning() {
+  if (powerupSpawnTimer) clearInterval(powerupSpawnTimer);
+  powerupSpawnTimer = null;
+  powerups.length = 0;
+  broadcast({ type: 'powerupClearAll' });
 }
 
 // --- Game tick: broadcast positions at 20 ticks/sec ---
@@ -195,6 +243,10 @@ wss.on('connection', (ws) => {
         x: player.x, y: 0, z: player.z
       }));
       broadcast({ type: 'chat', text: `${player.username} joined the game!` });
+      // Send existing powerups to new player
+      for (const pu of powerups) {
+        ws.send(JSON.stringify({ type: 'powerupSpawn', powerup: pu }));
+      }
       broadcastState();
     }
 
@@ -226,6 +278,8 @@ wss.on('connection', (ws) => {
           }
         }
       }
+      // Check powerup pickup
+      if (gamePhase === 'playing') checkPowerupPickup(player);
       // Position broadcast handled by game tick, not here
     }
 

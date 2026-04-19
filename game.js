@@ -637,6 +637,65 @@ function updateEmotes() {
   }
 }
 
+// ==============================================
+// POWERUPS
+// ==============================================
+const activePowerups = new Map(); // id -> { mesh, type, x, z }
+const BOOST_DURATION = 3000;
+let speedBoostEnd = 0;
+let jumpBoostEnd = 0;
+
+function createPowerupMesh(type, x, z) {
+  const group = new THREE.Group();
+
+  // Floating orb
+  const color = type === 'speed' ? 0x00ccff : 0x44ff44;
+  const orb = new THREE.Mesh(
+    new THREE.SphereGeometry(0.5, 16, 16),
+    new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5, transparent: true, opacity: 0.8 })
+  );
+  orb.position.y = 1.5;
+  group.add(orb);
+
+  // Ring around it
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.7, 0.06, 8, 24),
+    new THREE.MeshBasicMaterial({ color })
+  );
+  ring.position.y = 1.5;
+  ring.rotation.x = Math.PI / 2;
+  group.add(ring);
+
+  // Label
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = type === 'speed' ? '#00ccff' : '#44ff44';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(type === 'speed' ? 'SPEED' : 'JUMP', 64, 40);
+  const tex = new THREE.CanvasTexture(canvas);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+  sprite.position.y = 2.5;
+  sprite.scale.set(1.5, 0.75, 1);
+  group.add(sprite);
+
+  group.position.set(x, 0, z);
+  scene.add(group);
+  return group;
+}
+
+function updatePowerups() {
+  const t = Date.now() * 0.003;
+  for (const pu of activePowerups.values()) {
+    // Bob up and down + spin
+    pu.mesh.children[0].position.y = 1.5 + Math.sin(t + pu.x) * 0.3;
+    pu.mesh.children[1].position.y = 1.5 + Math.sin(t + pu.x) * 0.3;
+    pu.mesh.children[1].rotation.z += 0.02;
+  }
+}
+
 function sendEmote(emote) {
   const now = Date.now();
   if (now - lastEmoteTime < EMOTE_COOLDOWN) return;
@@ -785,6 +844,34 @@ function connectWS(username) {
     if (msg.type === 'emote') {
       showEmote(msg.id, msg.emote);
     }
+
+    if (msg.type === 'powerupSpawn') {
+      const pu = msg.powerup;
+      const mesh = createPowerupMesh(pu.type, pu.x, pu.z);
+      activePowerups.set(pu.id, { mesh, type: pu.type, x: pu.x, z: pu.z });
+    }
+
+    if (msg.type === 'powerupPickup') {
+      const pu = activePowerups.get(msg.powerupId);
+      if (pu) {
+        scene.remove(pu.mesh);
+        activePowerups.delete(msg.powerupId);
+      }
+      if (msg.playerId === myId) {
+        if (msg.powerupType === 'speed') {
+          speedBoostEnd = Date.now() + BOOST_DURATION;
+          addChat('You picked up SPEED BOOST!');
+        } else {
+          jumpBoostEnd = Date.now() + BOOST_DURATION;
+          addChat('You picked up JUMP BOOST!');
+        }
+      }
+    }
+
+    if (msg.type === 'powerupClearAll') {
+      for (const pu of activePowerups.values()) scene.remove(pu.mesh);
+      activePowerups.clear();
+    }
   };
 
   ws.onclose = () => {
@@ -860,14 +947,19 @@ function animate() {
   if (keys['KeyA']||keys['ArrowLeft'])  { mx -= cn; mz += sn; }
   if (keys['KeyD']||keys['ArrowRight']) { mx += cn; mz -= sn; }
 
+  const now = Date.now();
+  const hasSpeedBoost = now < speedBoostEnd;
+  const hasJumpBoost = now < jumpBoostEnd;
+
   let spd = iAmTagger ? TAGGER_SPEED : SPEED;
+  if (hasSpeedBoost) spd *= 1.6;
   if (crouching) spd *= CROUCH_SPEED_MULT;
   const len = Math.sqrt(mx*mx + mz*mz);
   if (len > 0) { mx = mx/len*spd*dt; mz = mz/len*spd*dt; }
 
   if (keys['Space'] && onGround) {
     crouching = false;
-    velocityY = JUMP_FORCE;
+    velocityY = hasJumpBoost ? JUMP_FORCE * 1.8 : JUMP_FORCE;
     onGround = false;
   }
 
@@ -891,6 +983,7 @@ function animate() {
   // Interpolate other players every frame for smooth motion
   interpolateOtherPlayers();
   updateEmotes();
+  updatePowerups();
 
   // Send position to server ~15 times/sec
   sendTimer += dt;
