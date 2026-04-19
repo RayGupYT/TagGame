@@ -147,7 +147,13 @@ function endRound() {
   broadcastState();
 }
 
-// --- Phase tick ---
+// --- Game tick: broadcast positions at 20 ticks/sec ---
+setInterval(() => {
+  if (players.size === 0) return;
+  broadcastState();
+}, 50);
+
+// --- Phase tick: check round transitions every second ---
 setInterval(() => {
   const now = Date.now();
   if (now >= phaseEndTime) {
@@ -155,17 +161,13 @@ setInterval(() => {
       if (players.size >= 2) {
         startRound();
       } else {
-        // Not enough players, restart lobby timer
         phaseEndTime = now + LOBBY_DURATION;
         broadcast({ type: 'chat', text: 'Need at least 2 players to start a round.' });
-        broadcastState();
       }
     } else {
       endRound();
     }
   }
-  // Broadcast time updates every second
-  broadcastState();
 }, 1000);
 
 // --- Connections ---
@@ -224,6 +226,7 @@ wss.on('connection', (ws) => {
           }
         }
       }
+      // Position broadcast handled by game tick, not here
     }
   });
 

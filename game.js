@@ -777,7 +777,7 @@ function animate() {
 
   // Send position to server ~30 times/sec
   sendTimer += dt;
-  if (sendTimer > 1/30 && ws && ws.readyState === 1) {
+  if (sendTimer > 1/15 && ws && ws.readyState === 1) {
     sendTimer = 0;
     ws.send(JSON.stringify({
       type: 'move',
