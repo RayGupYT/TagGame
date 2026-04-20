@@ -41,13 +41,28 @@
       background: rgba(0, 0, 0, 0.6); color: white;
     }
 
+    #chat-container {
+      position: fixed; bottom: 10px; left: 10px; width: 350px; z-index: 50;
+    }
     #chat-log {
-      position: fixed; bottom: 10px; left: 10px; width: 350px; max-height: 150px;
-      overflow-y: auto; z-index: 50; pointer-events: none;
+      width: 100%; max-height: 150px;
+      overflow-y: auto; pointer-events: none;
     }
     .chat-msg {
       color: white; background: rgba(0,0,0,0.5); padding: 4px 8px;
       margin-top: 3px; border-radius: 4px; font-size: 14px;
+    }
+    .chat-msg .chat-name { font-weight: bold; color: #e94560; }
+    #chat-input {
+      width: 100%; padding: 8px 12px; margin-top: 4px;
+      background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px; color: white; font-size: 14px; outline: none;
+      display: none;
+    }
+    #chat-input::placeholder { color: rgba(255,255,255,0.4); }
+    #chat-hint {
+      color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 4px;
+      pointer-events: none;
     }
 
     #round-timer {
@@ -113,7 +128,11 @@
   <div id="leaderboard"></div>
   <div id="round-timer"></div>
   <div id="phase-overlay"><div class="phase-text"></div><div class="phase-sub"></div></div>
-  <div id="chat-log"></div>
+  <div id="chat-container">
+    <div id="chat-log"></div>
+    <input type="text" id="chat-input" placeholder="Type a message..." maxlength="100">
+    <div id="chat-hint">Press T to chat</div>
+  </div>
   <div id="player-count"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

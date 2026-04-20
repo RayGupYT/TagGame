@@ -774,6 +774,19 @@ function addChat(text) {
   while (chatLog.children.length > 20) chatLog.removeChild(chatLog.firstChild);
 }
 
+function addPlayerChat(username, text) {
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'chat-name';
+  nameSpan.textContent = username + ':';
+  div.appendChild(nameSpan);
+  div.appendChild(document.createTextNode(' ' + text));
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  while (chatLog.children.length > 20) chatLog.removeChild(chatLog.firstChild);
+}
+
 function formatTime(ms) {
   const totalSec = Math.ceil(ms / 1000);
   const min = Math.floor(totalSec / 60);
@@ -919,6 +932,10 @@ function connectWS(username) {
       addChat(msg.text);
     }
 
+    if (msg.type === 'playerChat') {
+      addPlayerChat(msg.username, msg.text);
+    }
+
     if (msg.type === 'emote') {
       showEmote(msg.id, msg.emote);
     }
@@ -1002,14 +1019,55 @@ document.addEventListener('mousemove', e => {
 });
 
 const keys = {};
+const chatInput = document.getElementById('chat-input');
+const chatHint = document.getElementById('chat-hint');
+let chatOpen = false;
+
 window.addEventListener('keydown', e => {
   if (!gameStarted) return;
+
+  // Toggle chat with T
+  if (e.code === 'KeyT' && !chatOpen) {
+    e.preventDefault();
+    chatOpen = true;
+    chatInput.style.display = 'block';
+    chatHint.style.display = 'none';
+    chatInput.focus();
+    document.exitPointerLock();
+    return;
+  }
+
+  // Don't process game keys while chatting
+  if (chatOpen) return;
+
   if (e.code === 'KeyC' && !keys['KeyC']) crouching = !crouching;
   if (e.code === 'Digit1') sendEmote('67');
   if (e.code === 'Digit2') sendEmote('L');
   keys[e.code] = true;
 });
-window.addEventListener('keyup', e => { keys[e.code] = false; });
+window.addEventListener('keyup', e => { if (!chatOpen) keys[e.code] = false; });
+
+chatInput.addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') {
+    const text = chatInput.value.trim();
+    if (text && ws && ws.readyState === 1) {
+      ws.send(JSON.stringify({ type: 'chatMsg', text }));
+    }
+    chatInput.value = '';
+    chatInput.style.display = 'none';
+    chatHint.style.display = 'block';
+    chatOpen = false;
+    renderer.domElement.requestPointerLock();
+  }
+  if (e.key === 'Escape') {
+    chatInput.value = '';
+    chatInput.style.display = 'none';
+    chatHint.style.display = 'block';
+    chatOpen = false;
+    renderer.domElement.requestPointerLock();
+  }
+});
 
 // ==============================================
 // GAME LOOP

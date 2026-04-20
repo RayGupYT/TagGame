@@ -350,6 +350,13 @@ wss.on('connection', (ws) => {
     if (msg.type === 'emote') {
       broadcast({ type: 'emote', id, emote: msg.emote });
     }
+
+    if (msg.type === 'chatMsg') {
+      const text = (msg.text || '').trim().slice(0, 100);
+      if (text) {
+        broadcast({ type: 'playerChat', username: player.username, text });
+      }
+    }
   });
 
   ws.on('close', () => {
