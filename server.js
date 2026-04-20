@@ -62,11 +62,18 @@ function broadcast(msg) {
 
 function broadcastState() {
   const list = [];
+  const now = Date.now();
   for (const p of players.values()) {
+    // Calculate live tagger time
+    let tt = taggerTime.get(p.id) || 0;
+    if (gamePhase === 'playing' && p.id === taggerId) {
+      tt += now - taggerSwitchedAt;
+    }
     list.push({
       id: p.id, username: p.username,
       x: p.x, y: p.y, z: p.z, yaw: p.yaw,
-      isTagger: p.id === taggerId
+      isTagger: p.id === taggerId,
+      taggerTimeMs: tt
     });
   }
   const timeLeft = Math.max(0, phaseEndTime - Date.now());

@@ -812,7 +812,29 @@ function showPhaseOverlay(main, sub, duration) {
 }
 
 const leaderboardEl = document.getElementById('leaderboard');
+const liveLb = document.getElementById('live-leaderboard');
 let leaderboardTimeout = null;
+
+function updateLiveLeaderboard(players, phase) {
+  if (phase !== 'playing' || players.length < 2) {
+    liveLb.style.display = 'none';
+    return;
+  }
+  liveLb.style.display = 'block';
+  const sorted = [...players].sort((a, b) => (a.taggerTimeMs || 0) - (b.taggerTimeMs || 0));
+  let html = '<div class="live-lb-title">Tagger Time</div>';
+  sorted.forEach((p, i) => {
+    const cls = p.isTagger ? ' is-tagger' : (p.id === myId ? ' is-me' : '');
+    const prefix = i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i+1}th`;
+    const ms = p.taggerTimeMs || 0;
+    const sec = Math.floor(ms / 1000);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    const tag = p.isTagger ? ' [IT]' : '';
+    html += `<div class="live-lb-row${cls}"><span>${prefix} ${p.username}${tag}</span><span class="live-lb-time">${m}:${s.toString().padStart(2,'0')}</span></div>`;
+  });
+  liveLb.innerHTML = html;
+}
 
 function formatTimeSec(ms) {
   const sec = Math.floor(ms / 1000);
@@ -901,6 +923,7 @@ function connectWS(username) {
       }
 
       playerCount.textContent = `Players: ${msg.players.length}`;
+      updateLiveLeaderboard(msg.players, msg.gamePhase);
     }
 
     if (msg.type === 'roundStart') {
