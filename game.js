@@ -989,11 +989,16 @@ const loginScreen = document.getElementById('login-screen');
 const usernameInput = document.getElementById('username-input');
 const playBtn = document.getElementById('play-btn');
 
+const controlsBtn = document.getElementById('controls-btn');
+const controlsPanel = document.getElementById('controls-panel');
+const controlsClose = document.getElementById('controls-close');
+
 function startGame() {
   const username = usernameInput.value.trim() || 'Player';
   loginScreen.style.display = 'none';
   crosshair.style.display = 'block';
   playerCount.style.display = 'block';
+  controlsBtn.style.display = 'flex';
   gameStarted = true;
   renderer.domElement.requestPointerLock();
   connectWS(username);
@@ -1002,6 +1007,14 @@ function startGame() {
 playBtn.addEventListener('click', startGame);
 usernameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') startGame();
+});
+
+controlsBtn.addEventListener('click', () => {
+  controlsPanel.style.display = controlsPanel.style.display === 'block' ? 'none' : 'block';
+});
+controlsClose.addEventListener('click', () => {
+  controlsPanel.style.display = 'none';
+  renderer.domElement.requestPointerLock();
 });
 
 // ==============================================

@@ -115,6 +115,43 @@
       background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px;
       font-size: 14px; z-index: 50; pointer-events: none; display: none;
     }
+
+    #controls-btn {
+      position: fixed; bottom: 15px; right: 15px; width: 36px; height: 36px;
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px; color: white; font-size: 20px; cursor: pointer;
+      z-index: 55; display: none; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    #controls-btn:hover { background: rgba(255,255,255,0.2); }
+
+    #controls-panel {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9); border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px; padding: 24px 32px; z-index: 80; display: none;
+      min-width: 300px; max-width: 400px;
+    }
+    #controls-panel h2 {
+      color: #e94560; margin: 0 0 16px 0; font-size: 22px; text-align: center;
+    }
+    .ctrl-row {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08); color: white; font-size: 14px;
+    }
+    .ctrl-row:last-child { border-bottom: none; }
+    .ctrl-key {
+      background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 4px;
+      font-family: monospace; font-size: 13px; color: #e94560;
+    }
+    .ctrl-section {
+      color: rgba(255,255,255,0.4); font-size: 12px; text-transform: uppercase;
+      margin-top: 12px; margin-bottom: 4px; letter-spacing: 1px;
+    }
+    #controls-close {
+      display: block; margin: 16px auto 0; padding: 8px 24px;
+      background: #e94560; border: none; border-radius: 6px;
+      color: white; font-size: 14px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +171,26 @@
     <div id="chat-hint">Press T to chat</div>
   </div>
   <div id="player-count"></div>
+  <div id="controls-btn">&#9881;</div>
+  <div id="controls-panel">
+    <h2>CONTROLS</h2>
+    <div class="ctrl-section">Movement</div>
+    <div class="ctrl-row"><span>Move</span><span><span class="ctrl-key">W</span> <span class="ctrl-key">A</span> <span class="ctrl-key">S</span> <span class="ctrl-key">D</span></span></div>
+    <div class="ctrl-row"><span>Look around</span><span class="ctrl-key">Mouse</span></div>
+    <div class="ctrl-row"><span>Jump</span><span class="ctrl-key">Space</span></div>
+    <div class="ctrl-row"><span>Crouch (toggle)</span><span class="ctrl-key">C</span></div>
+    <div class="ctrl-section">Communication</div>
+    <div class="ctrl-row"><span>Open chat</span><span class="ctrl-key">T</span></div>
+    <div class="ctrl-row"><span>Send message</span><span class="ctrl-key">Enter</span></div>
+    <div class="ctrl-row"><span>Cancel chat</span><span class="ctrl-key">Esc</span></div>
+    <div class="ctrl-row"><span>Emote "67"</span><span class="ctrl-key">1</span></div>
+    <div class="ctrl-row"><span>Emote "L"</span><span class="ctrl-key">2</span></div>
+    <div class="ctrl-section">Tips</div>
+    <div class="ctrl-row"><span>Teleporter pads</span><span>Walk onto purple pads</span></div>
+    <div class="ctrl-row"><span>Powerups</span><span>Walk into orbs</span></div>
+    <div class="ctrl-row"><span>Tagger is 10% faster</span><span style="color:#ff4444">RED player</span></div>
+    <button id="controls-close">CLOSE</button>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="game.js"></script>
